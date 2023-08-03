@@ -1,0 +1,34 @@
+version: '3.9'
+
+volumes:
+  redis_data:
+    driver: local
+
+services:
+  redis:
+    container_name: wisper_redis
+    restart: always
+    image: bitnami/redis:latest
+    user: "${UID}:${GID}"
+    environment:
+      - REDIS_AOF_ENABLED=no
+      - ALLOW_EMPTY_PASSWORD=false
+      - REDIS_PASSWORD=p@55w0rd
+      - REDIS_TLS_CERT_FILE=/tls/redis.crt
+      - REDIS_TLS_KEY_FILE=/tls/redis.key
+      - REDIS_TLS_CA_FILE=/tls/ca.crt
+      - REDIS_TLS_ENABLED=yes
+      - REDIS_TLS_AUTH_CLIENTS=no
+      - REDIS_TLS_PORT_NUMBER=6380
+      - REDIS_PORT_NUMBER=6379
+    ports:
+      - 6379:6379
+      - 6380:6380
+    volumes:
+      - 'redis_data:/bitnami/redis/data'
+      - ./tls:/tls
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 5s
+      timeout: 1s    
+      retries: 2
